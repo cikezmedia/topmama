@@ -1,19 +1,28 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AiFillEyeInvisible } from 'react-icons/ai';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Router from 'next/router';
 
 type FormValues = {
-  email: string;
-  password: string;
+  em: string;
+  pass: string;
 };
 
-const Home: NextPage = () => {
+const Login: NextPage = () => {
   const [show, setShow] = useState(false);
   const [showMessage, setShowMessage] = useState('');
+  const [user, setUser] = useState({
+    email: null,
+    password: null,
+  });
+
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem('user-signup')!);
+    setUser(auth);
+  }, []);
 
   const {
     register,
@@ -26,37 +35,32 @@ const Home: NextPage = () => {
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    /**
-     * For a successful registration and API Backend to return
-     * status(200), your email must be eve.holt@reqres.in
-     *
-     * Note that registering with any other email is possible too
-     * */
-    try {
-      const { email }: { email: string } = data;
+    const { em, pass } = data;
+    if (user === null) {
+      return setShowMessage('No user found, please register first');
+    }
+    const { email, password } = user;
 
-      if (email === 'eve.holt@reqres.in') {
-        const result = await fetch('https://reqres.in/api/register', {
+    try {
+      if (em === email && password === pass) {
+        const result = await fetch('https://reqres.in/api/login', {
           method: 'POST',
-          body: JSON.stringify(data),
+          body: JSON.stringify(user),
           headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
           },
         });
         const send = await result.json();
-        localStorage.setItem('user-signup', JSON.stringify(data));
-        setShowMessage('Your registration is successful');
-        setTimeout(() => {
-          Router.push('/login');
-        }, 3000);
+        sessionStorage.setItem('token', JSON.stringify(send));
+        const expire = Date.now();
+        sessionStorage.setItem('expire', JSON.stringify({ expire: expire }));
+        Router.push('../user/');
       } else {
-        setShowMessage(
-          'your email must be eve.holt@reqres.in in order to enjoy this application.'
-        );
+        setShowMessage('Login credentials incorrect');
       }
     } catch (error) {
-      setShowMessage('Registration failed, please try again');
+      setShowMessage('Login failed please try again');
     }
   };
 
@@ -71,10 +75,9 @@ const Home: NextPage = () => {
       <main>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='container'>
-            <h2 className='form-group'>User Registration</h2>
+            <h2 className='form-group'>User Login</h2>
             <p>
-              Register a free account to access all the features of this
-              assessment app
+              Login account to access all the features of this assessment app
             </p>
             {showMessage && (
               <div className='alert alert-danger'>{showMessage}</div>
@@ -85,7 +88,7 @@ const Home: NextPage = () => {
                   type='text'
                   className='form-control'
                   placeholder='Email'
-                  {...register('email', {
+                  {...register('em', {
                     required: {
                       value: true,
                       message: 'Email is required',
@@ -97,8 +100,8 @@ const Home: NextPage = () => {
                   })}
                 />
               </div>
-              {errors?.email && (
-                <span className='text-danger mb-2'>{errors.email.message}</span>
+              {errors?.em && (
+                <span className='text-danger mb-2'>{errors.em.message}</span>
               )}
               <div className='col pass mt-2'>
                 <a className='passalign' onClick={showPass}>
@@ -106,7 +109,7 @@ const Home: NextPage = () => {
                 </a>
                 <input
                   type={show ? 'text' : 'password'}
-                  {...register('password', {
+                  {...register('pass', {
                     required: {
                       value: true,
                       message: 'password is required',
@@ -121,17 +124,15 @@ const Home: NextPage = () => {
                   placeholder='Password'
                 />
               </div>
-              {errors?.password && (
-                <span className='text-danger mb-2'>
-                  {errors.password.message}
-                </span>
+              {errors?.pass && (
+                <span className='text-danger mb-2'>{errors.pass.message}</span>
               )}
               <div className='col mb-2 mt-3'>
                 <button type='submit' className='btn btn-primary btn-sm'>
-                  Register
+                  Login
                 </button>
               </div>
-              <a href='/login'>Already have an account? Login</a>
+              <a href='./'>New here? Register</a>
             </div>
           </div>
         </form>
@@ -140,4 +141,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Login;

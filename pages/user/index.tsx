@@ -4,6 +4,7 @@ import Head from 'next/head';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from '../../components/Navbar';
 import Router from 'next/router';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
   const [user, setUser] = useState({
@@ -40,9 +41,9 @@ const Home: NextPage = () => {
             </i>
           </h2>
           <br />
-          <a href='/user/account' className='btn btn-primary'>
+          <Link href='/user/account' className='btn btn-primary'>
             See Account
-          </a>
+          </Link>
         </div>
       </div>
     </>

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AiFillEyeInvisible } from 'react-icons/ai';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Router from 'next/router';
+import Link from 'next/link';
 
 type FormValues = {
   email: string;
@@ -101,9 +102,9 @@ const Home: NextPage = () => {
                 <span className='text-danger mb-2'>{errors.email.message}</span>
               )}
               <div className='col pass mt-2'>
-                <a className='passalign' onClick={showPass}>
+                <i className='passalign' onClick={showPass}>
                   <AiFillEyeInvisible />
-                </a>
+                </i>
                 <input
                   type={show ? 'text' : 'password'}
                   {...register('password', {
@@ -131,7 +132,7 @@ const Home: NextPage = () => {
                   Register
                 </button>
               </div>
-              <a href='/login'>Already have an account? Login</a>
+              <Link href='/login'>Already have an account? Login</Link>
             </div>
           </div>
         </form>
